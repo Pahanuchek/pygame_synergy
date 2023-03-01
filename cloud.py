@@ -1,23 +1,35 @@
-import random
-
 import pygame
 
-W, H = 1400, 700
+from settings import Settings
+
 
 class Cloud(pygame.sprite.Sprite):
 
-    def __init__(self, obj):
+    def __init__(self, x, y, obj, speed):
         pygame.sprite.Sprite.__init__(self)
+        self.setting = Settings()
         self.image = pygame.image.load(obj)
-        self.image = pygame.transform.scale(self.image, (100, 80))
-        self.rect = self.image.get_rect(center=(50, 100))
+        self.image = pygame.transform.scale(self.image, (self.setting.width_cloud,
+                                                         self.setting.height_cloud))
+        self.rect = self.image.get_rect(center=(x, y))
+        self.speed = speed
 
 
-    def update(self):
-        track = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        num = random.randint(0, 1)
-        self.rect.x += track[num][0]
-        self.rect.y += track[num][1]
+    def update(self, *args):
+        if args[1] == 0:
+            if self.rect.x < args[0]:
+                self.rect.x += self.speed
+            else:
+                self.rect.x = - self.setting.width_cloud
+        if args[1] == 1:
+            if self.rect.x > args[0] - self.setting.width_cloud:
+                self.rect.x -= self.speed
+            else:
+                self.rect.x = self.setting.width_screen
+
+
+
+
 
 
 
