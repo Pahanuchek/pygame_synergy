@@ -7,7 +7,7 @@ class Settings:
 
         self.width_cloud, self.height_cloud = 80, 80
 
-        self.FPS = 40
+        self.FPS = 50
 
         self.interval_cloud = (75, 175, 300, 425, 525)
 

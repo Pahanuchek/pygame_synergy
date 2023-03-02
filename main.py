@@ -6,11 +6,17 @@ import sys
 
 from cloud import Cloud
 
-from tree_river import TreeRiver
+from tree import Tree
 
-from utils import planting
+from fire import Fire
+
+from lake import Lake
+
+from utils import generate, entrance
 
 from settings import Settings
+
+
 
 
 class SaveTheForest:
@@ -31,49 +37,78 @@ class SaveTheForest:
         self.screen.blit(self.bg, (0, 0))
 
         self.icon = pygame.image.load('img/icon.jpg')
+        self.icon.set_colorkey((255, 255, 255))
         pygame.display.set_icon(self.icon)
 
         self.clouds_left = pygame.sprite.Group()
         self.clouds_right = pygame.sprite.Group()
         self.trees = pygame.sprite.Group()
+        self.fires = pygame.sprite.Group()
+        self.lakes = pygame.sprite.Group()
 
-    def tree(self, q, obj, s=None):
-        if s is None:
-            s = []
-        self.lst = planting(q, s)
-        for row in self.lst:
-            self.trees.add(TreeRiver(obj, row[0], row[1]))
-        return self.lst
+    def tree(self, n, m):
+        if len(self.trees) == 0:
+            self.trees.add(Tree('img/tree.png', n, m))
+        else:
+            tree = Tree('img/tree.png', n, m)
+            if entrance(tree, self.trees):
+                self.trees.add(tree)
+
+
+    def lake(self, n, m):
+        lake = Lake('img/lake.png', n, m)
+        if entrance(lake, self.trees):
+            if len(self.lakes) == 0:
+                self.lakes.add(lake)
+            elif entrance(lake, self.lakes):
+                self.lakes.add(lake)
+
+
+
+
+    def fire_k(self, q):
+        num = rand(0, q)
+        tree_n = list(self.trees)[num]
+        fire = Fire('img/fire.png', 0, 0)
+        fire.rect.x = tree_n.rect.x
+        fire.rect.y = tree_n.rect.y
+        self.fires.add(fire)
+
 
 
     def flight_clouds(self):
-        self.speed_cloud = [rand(1, 3) for _ in range(5)]
+        speed_cloud = [rand(1, 5) for _ in range(5)]
         self.clouds_left.add(Cloud((- self.setting.width_cloud * 2), self.setting.interval_cloud[2],
-                                   'img/cloud.png', self.speed_cloud[0]),
+                                   'img/cloud.png', speed_cloud[0]),
                              Cloud((- self.setting.width_cloud * 2), self.setting.interval_cloud[0],
-                                   'img/cloud.png', self.speed_cloud[1]),
+                                   'img/cloud.png', speed_cloud[1]),
                              Cloud((- self.setting.width_cloud * 2), self.setting.interval_cloud[4],
-                                   'img/cloud.png', self.speed_cloud[2]))
+                                   'img/cloud.png', speed_cloud[2]))
         self.clouds_right.add(Cloud(self.setting.width_screen, self.setting.interval_cloud[3],
-                                    'img/cloud.png', self.speed_cloud[3]),
+                                    'img/cloud.png', speed_cloud[3]),
                              Cloud(self.setting.width_screen, self.setting.interval_cloud[1],
-                                   'img/cloud.png', self.speed_cloud[4]))
+                                   'img/cloud.png', speed_cloud[4]))
 
 
     def run_game(self):
         self.flight_clouds()
-        self.list_trees = self.tree(30, 'img/tree.png')
-        self.list_trees = self.tree(6, 'img/lake.png', self.list_trees)
-
-
-
 
         while True:
-            self.clock.tick(self.setting.FPS)
 
+            self.clock.tick(self.setting.FPS)
             self.screen.blit(self.bg, (0, 0))
 
+            while len(self.trees) <= 30:
+                self.tree(*generate())
             self.trees.draw(self.screen)
+
+            while len(self.lakes) <= 7:
+                self.lake(*generate())
+            self.lakes.draw(self.screen)
+
+            self.fire_k(7)
+            self.fires.draw(self.screen)
+
 
             self.clouds_left.draw(self.screen)
             self.clouds_right.draw(self.screen)
