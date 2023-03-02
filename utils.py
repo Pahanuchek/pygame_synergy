@@ -11,8 +11,17 @@ def generate():
     return k, m
 
 def entrance(obj, group):
+    counter = 0
     for row in group:
-        if row.rect.colliderect(obj.rect) != True:
-            return True
+        if obj.rect.colliderect(row.rect):
+            counter += 1
+            break
+    if counter == 0:
+        return True
+
+
+def gen_num(a, b):
+    num = rand(a, b)
+    return num
 
 

@@ -26,6 +26,8 @@ class SaveTheForest:
         pygame.init()
 
         self.clock = pygame.time.Clock()
+        self.timer_games = 1
+        pygame.time.set_timer(pygame.USEREVENT, 60)
 
         self.setting = Settings()
 
@@ -73,21 +75,28 @@ class SaveTheForest:
         fire.rect.x = tree_n.rect.x
         fire.rect.y = tree_n.rect.y
         self.fires.add(fire)
+        if self.timer_games % 10 == 0 and len(self.fires) >= 3:
+            for row in self.fires:
+                row.kill()
+                break
+
+
+
+
 
 
 
     def flight_clouds(self):
-        speed_cloud = [rand(1, 5) for _ in range(5)]
         self.clouds_left.add(Cloud((- self.setting.width_cloud * 2), self.setting.interval_cloud[2],
-                                   'img/cloud.png', speed_cloud[0]),
+                                   'img/cloud.png', 1),
                              Cloud((- self.setting.width_cloud * 2), self.setting.interval_cloud[0],
-                                   'img/cloud.png', speed_cloud[1]),
+                                   'img/cloud.png', 2),
                              Cloud((- self.setting.width_cloud * 2), self.setting.interval_cloud[4],
-                                   'img/cloud.png', speed_cloud[2]))
+                                   'img/cloud.png', 3))
         self.clouds_right.add(Cloud(self.setting.width_screen, self.setting.interval_cloud[3],
-                                    'img/cloud.png', speed_cloud[3]),
+                                    'img/cloud.png', 1),
                              Cloud(self.setting.width_screen, self.setting.interval_cloud[1],
-                                   'img/cloud.png', speed_cloud[4]))
+                                   'img/cloud.png', 2))
 
 
     def run_game(self):
@@ -106,9 +115,10 @@ class SaveTheForest:
                 self.lake(*generate())
             self.lakes.draw(self.screen)
 
-            self.fire_k(7)
-            self.fires.draw(self.screen)
+            if self.timer_games % 40 == 0 and len(self.fires) <= len(self.trees):
+                    self.fire_k(len(self.trees) - 1)
 
+            self.fires.draw(self.screen)
 
             self.clouds_left.draw(self.screen)
             self.clouds_right.draw(self.screen)
@@ -116,10 +126,11 @@ class SaveTheForest:
             self.clouds_right.update(-self.setting.width_cloud, 1)
 
             for event in pygame.event.get():
+                if event.type == pygame.USEREVENT:
+                    self.timer_games += 1
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-
 
             pygame.display.update()
 
