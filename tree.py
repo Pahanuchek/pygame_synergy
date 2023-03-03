@@ -1,6 +1,6 @@
 import pygame
-
 from settings import Settings
+from utils import entrance
 
 
 class Tree(pygame.sprite.Sprite):
@@ -12,6 +12,14 @@ class Tree(pygame.sprite.Sprite):
                                                          self.setting.height_tree_river))
         self.rect = self.image.get_rect(center=(x, y))
 
+
+def tree(group, n, m):
+    if len(group) == 0:
+        group.add(Tree('img/tree.png', n, m))
+    else:
+        tree = Tree('img/tree.png', n, m)
+        if entrance(tree, group):
+            group.add(tree)
 
 
 
