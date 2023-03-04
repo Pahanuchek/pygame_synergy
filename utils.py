@@ -23,5 +23,3 @@ def entrance(obj, group):
 def gen_num(a, b):
     num = rand(a, b)
     return num
-
-
