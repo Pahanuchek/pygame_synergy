@@ -1,11 +1,14 @@
-import pygame
 import sys
+import pygame
 from cloud import *
-from tree import *
 from fire import *
+from hospital import hospitals
 from lake import lake
-from utils import generate, entrance, gen_num
 from settings import Settings
+from shop import *
+from tree import *
+from utils import generate, gen_num
+from helicopter import Helicopter
 
 
 class SaveTheForest:
@@ -42,13 +45,36 @@ class SaveTheForest:
         self.lakes = pygame.sprite.Group()
         self.lighter_left = pygame.sprite.Group()
         self.lighter_right = pygame.sprite.Group()
+        self.hospit = pygame.sprite.Group()
+        self.shop_waters = pygame.sprite.Group()
+        self.helicopter = pygame.sprite.Group()
+
+
+    def in_helicopter(self):
+        helic = Helicopter('img/helicopter.png', 600 , 300)
+        self.helicopter.add(helic)
 
 
     def run_game(self):
         # Функция создания облаков, и объединения их в левую и правую группу
         flight_clouds(self.clouds_left, self.clouds_right)
+        self.in_helicopter()
 
         while True:
+            keys = pygame.key.get_pressed()
+            self.keys_pos_right = False
+            self.keys_pos_left = False
+            self.keys_pos_down = False
+            self.keys_pos_up = False
+            if keys[pygame.K_RIGHT]:
+                self.keys_pos_left = True
+            elif keys[pygame.K_LEFT]:
+                self.keys_pos_right = True
+            elif keys[pygame.K_DOWN]:
+                self.keys_pos_down = True
+            elif keys[pygame.K_UP]:
+                self.keys_pos_up = True
+
             # Задает частоту обновления нашего основного цикла
             self.clock.tick(self.setting.FPS)
             # Задает основной задний фон в виде травы
@@ -64,10 +90,26 @@ class SaveTheForest:
                 lake(self.trees, self.lakes, *generate())
             self.lakes.draw(self.screen)
 
+            # Создание рандомного расположения госпиталя
+            while len(self.hospit) < 1:
+                hospitals(self.trees, self.lakes, self.hospit, *generate())
+            self.hospit.draw(self.screen)
+
+
+            # Создание рандомного расположения магазина
+            while len(self.shop_waters) < 1:
+                shop_water(self.trees, self.lakes, self.shop_waters, *generate())
+            self.shop_waters.draw(self.screen)
+
             # Создание рандомного возгарания деревьев
             if self.timer_games % 40 == 0 and len(self.fires) <= len(self.trees):
                     fire_go(len(self.trees) - 1, self.trees, self.fires, self.timer_games )
             self.fires.draw(self.screen)
+
+            self.helicopter.draw(self.screen)
+            self.helicopter.update(self.keys_pos_left, self.keys_pos_right,
+                                   self.keys_pos_down, self.keys_pos_up)
+
 
             # Создание облаков левой группы на карте
             self.clouds_left.draw(self.screen)
@@ -90,7 +132,7 @@ class SaveTheForest:
             for event in pygame.event.get():
                 if event.type == pygame.USEREVENT:
                     self.timer_games += 1
-                if event.type == pygame.QUIT:
+                elif event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 

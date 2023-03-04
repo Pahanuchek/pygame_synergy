@@ -12,6 +12,7 @@ class Fire(pygame.sprite.Sprite):
                                                          self.setting.height_tree_river))
         self.rect = self.image.get_rect(center=(x, y))
 
+
 def fire_go(q, group_1, group_2, time):
     num = gen_num(0, q)
     tree_n = list(group_1)[num]

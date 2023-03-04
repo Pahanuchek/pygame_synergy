@@ -34,22 +34,17 @@ class Cloud(pygame.sprite.Sprite):
 
 
 def flight_clouds(group_left, group_right):
-    group_left.add(Cloud((- sett().width_cloud * 2), sett().interval_cloud[2],
-                               'img/cloud.png', 2),
-                         Cloud((- sett().width_cloud * 2), sett().interval_cloud[0],
-                               'img/cloud.png', 1),
-                         Cloud((- sett().width_cloud * 2), sett().interval_cloud[4],
-                               'img/cloud.png', 3))
-    group_right.add(Cloud(sett().width_screen, sett().interval_cloud[3],
-                                'img/cloud.png', 2),
-                          Cloud(sett().width_screen, sett().interval_cloud[1],
-                                'img/cloud.png', 3))
+    group_left.add(Cloud((- sett().width_cloud * 2), sett().interval_cloud[2], 'img/cloud.png', 2),
+                    Cloud((- sett().width_cloud * 2), sett().interval_cloud[0], 'img/cloud.png', 1),
+                    Cloud((- sett().width_cloud * 2), sett().interval_cloud[4], 'img/cloud.png', 3))
+    group_right.add(Cloud(sett().width_screen, sett().interval_cloud[3], 'img/cloud.png', 2),
+                          Cloud(sett().width_screen, sett().interval_cloud[1], 'img/cloud.png', 3))
 
 
 def light_strike(group_1, group_2, q, ran, time):
     if time % ran == 0:
         cloud = list(group_1)[gen_num(0, q)]
-        light = Cloud(cloud.rect.x + 40, cloud.rect.y + 40,'img/lighter.png', cloud.speed)
+        light = Cloud(cloud.rect.x + 40, cloud.rect.y + 40, 'img/lighter.png', cloud.speed)
         group_2.add(light)
     elif len(group_2) != 0 and time % 40 == 0:
         for row in group_2:
