@@ -12,7 +12,7 @@ class Button():
             'hover': '#666666',
             'pressed': '#333333'
         }
-        font = pygame.font.SysFont('Arial', 30)
+        font = pygame.font.Font('font.ttf', 30)
 
         self.button_surface = pygame.Surface((self.width, self.height))
         self.button_rect = pygame.Rect(self.x, self.y, self.width, self.height)
@@ -32,8 +32,7 @@ class Button():
             self.button_rect.width / 2 - self.button_surf.get_rect().width / 2,
             self.button_rect.height / 2 - self.button_surf.get_rect().height / 2
         ])
+
         disp.blit(self.button_surface, self.button_rect)
         pygame.draw.rect(disp, (0, 0, 0),
                          (self.x, self.y, self.width, self.height), 2)
-
-
