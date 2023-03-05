@@ -115,7 +115,6 @@ class SaveTheForest:
     def in_pause(self):
         self.paused = False
 
-
     def game_over(self):
         if self.setting.lives <= 0:
             stopped = True
