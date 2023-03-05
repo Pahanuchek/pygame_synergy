@@ -100,22 +100,27 @@ class SaveTheForest:
                 elif event.type == pygame.KEYUP:
                     self.chek_keyup_events(event)
                 elif event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.exit()
             self.draw_text('Paused!', self.setting.width_screen // 2,
                            self.setting.height_screen // 3, self.setting.text_size_score * 3)
-            button = Button(self.setting.width_screen - self.setting.width_buttom // 2,
-                            self.setting.height_screen, self.setting.width_buttom,
-                            self.setting.height_buttom, 'continue')
-            button.process(self.screen, self.in_pause)
-            if self.keys_in:
-                self.paused = False
+            self.buttons(self.setting.height_screen // 2, self.in_pause, 'continue')
+            self.buttons(self.setting.height_screen // 1.5, self.exit, 'exit')
             pygame.display.update()
 
     def in_pause(self):
         self.paused = False
 
-    def game_over(self):
+    def exit(self):
+        pygame.quit()
+        sys.exit()
+
+    def buttons(self, height, func, msg):
+        button = Button(self.setting.width_screen // 2 - self.setting.width_buttom // 2,
+                        height, self.setting.width_buttom,
+                        self.setting.height_buttom, msg)
+        button.process(self.screen, func)
+
+    def game_overs(self):
         if self.setting.lives <= 0:
             stopped = True
             while stopped:
@@ -125,18 +130,12 @@ class SaveTheForest:
                     elif event.type == pygame.KEYUP:
                         self.chek_keyup_events(event)
                     elif event.type == pygame.QUIT:
-                        pygame.quit()
-                        sys.exit()
+                        self.exit()
                 self.draw_text('Game over!', self.setting.width_screen // 2,
                                self.setting.height_screen // 3, self.setting.text_size_score * 3)
                 self.draw_text('Press Enter to continue, press Esc to quit!',
                                self.setting.width_screen // 2, self.setting.height_screen // 2,
                                self.setting.text_size_score * 3)
-                if self.keys_pause:
-                    pygame.quit()
-                    sys.exit()
-                if self.keys_in:
-                    SaveTheForest().run_game()
                 pygame.display.update()
 
     def rand_tree(self):
@@ -372,7 +371,7 @@ class SaveTheForest:
             self.light_cloud_display()
             self.input_info()
             self.control_event()
-            self.game_over()
+            self.game_overs()
             pygame.display.update()
 
 
