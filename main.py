@@ -102,7 +102,7 @@ class SaveTheForest:
                 elif event.type == pygame.QUIT:
                     self.exit()
             self.draw_text('Paused!', self.setting.width_screen // 2,
-                           self.setting.height_screen // 3, self.setting.text_size_score * 3)
+                           self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
             self.buttons(self.setting.height_screen // 2, self.in_pause, 'continue')
             self.buttons(self.setting.height_screen // 1.5, self.exit, 'exit')
             pygame.display.update()
@@ -113,6 +113,10 @@ class SaveTheForest:
     def exit(self):
         pygame.quit()
         sys.exit()
+
+    def new_game(self):
+        self.stopped = False
+        SaveTheForest().run_game()
 
     def buttons(self, height, func, msg):
         button = Button(self.setting.width_screen // 2 - self.setting.width_buttom // 2,
@@ -132,10 +136,9 @@ class SaveTheForest:
                     elif event.type == pygame.QUIT:
                         self.exit()
                 self.draw_text('Game over!', self.setting.width_screen // 2,
-                               self.setting.height_screen // 3, self.setting.text_size_score * 3)
-                self.draw_text('Press Enter to continue, press Esc to quit!',
-                               self.setting.width_screen // 2, self.setting.height_screen // 2,
-                               self.setting.text_size_score * 3)
+                               self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
+                self.buttons(self.setting.height_screen // 2, self.new_game, 'new game')
+                self.buttons(self.setting.height_screen // 1.5, self.exit, 'exit')
                 pygame.display.update()
 
     def rand_tree(self):
@@ -313,9 +316,9 @@ class SaveTheForest:
                                self.setting.bg_k * 20, self.setting.bg_k)
         self.bg_inform.add(bg_info)
 
-    def draw_text(self, text, x, y, size):
+    def draw_text(self, text, x, y, size, style):
         # Функция обработки текста
-        font = pygame.font.Font(None, size)
+        font = pygame.font.Font(style, size)
         text_surface = font.render(text, True, (0, 0, 0))
         text_rect = text_surface.get_rect(center=(x, y))
         self.screen.blit(text_surface, text_rect)
@@ -325,12 +328,12 @@ class SaveTheForest:
         self.bg_inform.draw(self.screen)
         self.draw_text(str(f'Количество емкостей воды: {self.setting.num_water}'
                            f'/{self.setting.op_water}'), self.setting.text_k * 1.5,
-                       self.setting.text_size_score * 1.5, self.setting.text_size_score)
+                       self.setting.text_size_score * 1.5, self.setting.text_size_score, None)
         self.draw_text(str(f'Очки: {self.setting.scores}'), self.setting.text_k,
-                       self.setting.text_size_score * 1.5, self.setting.text_size_score)
+                       self.setting.text_size_score * 1.5, self.setting.text_size_score, None)
         self.draw_text(str(f'Жизни: {self.setting.lives}/{self.setting.max_lives}'),
                        self.setting.text_k * 2, self.setting.text_size_score * 1.5,
-                       self.setting.text_size_score)
+                       self.setting.text_size_score, None)
 
     def control_event(self):
         # Задание таймера, контроль завершения игры
