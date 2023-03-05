@@ -10,7 +10,7 @@ class Settings:
         self.width_hospital_shop, self.height_hospital_shop = 100, 80
         self.width_cloud, self.height_cloud = 80, 80
         self.text_size_score = 20
-        self.width_buttom = 150
+        self.width_buttom = 180
         self.height_buttom = 50
         self.num_water = 2
         self.op_water = 2
@@ -26,6 +26,6 @@ class Settings:
         self.quantity_trees = 30
         self.quantity_lakes = 7
         self.scores = 0
-        self.score_up = 50
+        self.score_up = 500
         self.score_down = 30
         self.lives = 100
