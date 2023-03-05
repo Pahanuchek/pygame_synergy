@@ -1,7 +1,5 @@
 import sys
 import pygame
-
-from button import Button
 from cloud import Cloud
 from static import StaticObject
 from settings import Settings
@@ -46,8 +44,6 @@ class SaveTheForest:
         self.hospit = pygame.sprite.Group()
         self.shop_waters = pygame.sprite.Group()
         self.helicopter = pygame.sprite.Group()
-        self.bg_inform = pygame.sprite.Group()
-        self.create = True
 
         # Задание начального значения клавиш
         self.keys_pos_right = False
@@ -55,90 +51,20 @@ class SaveTheForest:
         self.keys_pos_down = False
         self.keys_pos_up = False
         self.keys_pos_space = False
-        self.keys_pause = False
-        self.keys_in = False
 
-    def chek_keydown_events(self, event):
+    def keys_position(self):
         # Функция обработки нажатия клавиш
-        if event.key == pygame.K_RIGHT:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RIGHT]:
             self.keys_pos_left = True
-        elif event.key == pygame.K_LEFT:
+        elif keys[pygame.K_LEFT]:
             self.keys_pos_right = True
-        elif event.key == pygame.K_DOWN:
+        elif keys[pygame.K_DOWN]:
             self.keys_pos_down = True
-        elif event.key == pygame.K_UP:
+        elif keys[pygame.K_UP]:
             self.keys_pos_up = True
-        elif event.key == pygame.K_SPACE:
+        elif keys[pygame.K_SPACE]:
             self.keys_pos_space = True
-        elif event.key == pygame.K_ESCAPE:
-            self.keys_pause = True
-        elif event.key == pygame.K_RETURN:
-            self.keys_in = True
-
-    def chek_keyup_events(self, event):
-        if event.key == pygame.K_RIGHT:
-            self.keys_pos_left = False
-        elif event.key == pygame.K_LEFT:
-            self.keys_pos_right = False
-        elif event.key == pygame.K_DOWN:
-            self.keys_pos_down = False
-        elif event.key == pygame.K_UP:
-            self.keys_pos_up = False
-        elif event.key == pygame.K_SPACE:
-            self.keys_pos_space = False
-        elif event.key == pygame.K_ESCAPE:
-            self.keys_pause = False
-        elif event.key == pygame.K_RETURN:
-            self.keys_in = False
-
-    def pause(self):
-        self.paused = True
-        while self.paused:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    self.chek_keydown_events(event)
-                elif event.type == pygame.KEYUP:
-                    self.chek_keyup_events(event)
-                elif event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-            self.draw_text('Paused!', self.setting.width_screen // 2,
-                           self.setting.height_screen // 3, self.setting.text_size_score * 3)
-            button = Button(self.setting.width_screen - self.setting.width_buttom // 2,
-                            self.setting.height_screen, self.setting.width_buttom,
-                            self.setting.height_buttom, 'continue')
-            button.process(self.screen, self.in_pause)
-            if self.keys_in:
-                self.paused = False
-            pygame.display.update()
-
-    def in_pause(self):
-        self.paused = False
-
-
-    def game_over(self):
-        if self.setting.lives <= 0:
-            stopped = True
-            while stopped:
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        self.chek_keydown_events(event)
-                    elif event.type == pygame.KEYUP:
-                        self.chek_keyup_events(event)
-                    elif event.type == pygame.QUIT:
-                        pygame.quit()
-                        sys.exit()
-                self.draw_text('Game over!', self.setting.width_screen // 2,
-                               self.setting.height_screen // 3, self.setting.text_size_score * 3)
-                self.draw_text('Press Enter to continue, press Esc to quit!',
-                               self.setting.width_screen // 2, self.setting.height_screen // 2,
-                               self.setting.text_size_score * 3)
-                if self.keys_pause:
-                    pygame.quit()
-                    sys.exit()
-                if self.keys_in:
-                    SaveTheForest().run_game()
-                pygame.display.update()
 
     def rand_tree(self):
         # Создание рандомного расположеных деревьев
@@ -149,8 +75,7 @@ class SaveTheForest:
                 if entrance(tree, self.lakes):
                     if entrance(tree, self.hospit):
                         if entrance(tree, self.shop_waters):
-                            if entrance(tree, self.bg_inform):
-                                self.trees.add(tree)
+                            self.trees.add(tree)
         self.trees.draw(self.screen)
 
     def fire_tree_go(self):
@@ -191,8 +116,7 @@ class SaveTheForest:
                 if len(self.lakes) == 0:
                     self.lakes.add(lake)
                 elif entrance(lake, self.lakes):
-                    if entrance(lake, self.bg_inform):
-                        self.lakes.add(lake)
+                    self.lakes.add(lake)
         self.lakes.draw(self.screen)
 
     def create_hospital(self):
@@ -202,8 +126,7 @@ class SaveTheForest:
                                     self.setting.height_hospital_shop)
             if entrance(hospital, self.trees):
                 if entrance(hospital, self.lakes):
-                    if entrance(hospital, self.bg_inform):
-                        self.hospit.add(hospital)
+                    self.hospit.add(hospital)
         self.hospit.draw(self.screen)
 
     def create_shop(self):
@@ -214,8 +137,7 @@ class SaveTheForest:
             if entrance(shop, self.trees):
                 if entrance(shop, self.lakes):
                     if entrance(shop, self.hospit):
-                        if entrance(shop, self.bg_inform):
-                            self.shop_waters.add(shop)
+                        self.shop_waters.add(shop)
         self.shop_waters.draw(self.screen)
 
     def flight_clouds(self):
@@ -251,8 +173,7 @@ class SaveTheForest:
 
     def in_helicopter(self):
         # Инициализация вертолета
-        helic = Helicopter('img/helicopter.png', self.setting.width_screen // 2,
-                           self.setting.height_screen // 2)
+        helic = Helicopter('img/helicopter.png', 600, 300)
         self.helicopter.add(helic)
 
     def move_helicopter(self):
@@ -265,41 +186,11 @@ class SaveTheForest:
         # Тушение горящего дерева, начисление очков
         for hel in self.helicopter:
             for fire in self.fires:
-                if hel.rect.colliderect(fire.rect) and self.keys_pos_space\
-                        and self.setting.num_water > 0:
-                    self.setting.num_water -= 1
+                if hel.rect.colliderect(fire.rect) and self.keys_pos_space:
                     fire.kill()
                     self.setting.scores += self.setting.score_up
 
-    def set_water(self):
-        # Набор воды
-        for hel in self.helicopter:
-            for lake in self.lakes:
-                if hel.rect.colliderect(lake.rect) and self.keys_pos_space and \
-                        self.setting.num_water < self.setting.op_water:
-                    self.setting.num_water += 1
-
-    def upgrade_water(self):
-        # Увеличение емкостей воды
-        for hel in self.helicopter:
-            for shop in self.shop_waters:
-                if hel.rect.colliderect(shop.rect) and self.keys_pos_space and \
-                        self.setting.op_water < self.setting.max_water and\
-                        self.setting.scores > self.setting.upgrade_water:
-                    self.setting.op_water += 1
-                    self.setting.scores -= self.setting.upgrade_water
-
-    def upgrade_live(self):
-        # Увеличение жизней
-        for hel in self.helicopter:
-            for hos in self.hospit:
-                if hel.rect.colliderect(hos.rect) and self.keys_pos_space and \
-                        self.setting.lives < self.setting.max_lives and\
-                        self.setting.scores > self.setting.upgrade_lives:
-                    self.setting.lives = 100
-                    self.setting.scores -= self.setting.upgrade_lives
-
-    def live_down(self):
+    def live_up_down(self):
         # Отнимает жизнь у вертолета если по нему ударила молния
         for hel in self.helicopter:
             for light in self.lighter_left:
@@ -309,55 +200,37 @@ class SaveTheForest:
                 if hel.rect.colliderect(right.rect):
                     self.setting.lives -= 1
 
-    def info_bg(self):
-        # Инициализация вертолета
-        bg_info = StaticObject('img/bg_info.png', self.setting.bg_k * 20, self.setting.bg_k,
-                               self.setting.bg_k * 20, self.setting.bg_k)
-        self.bg_inform.add(bg_info)
-
-    def draw_text(self, text, x, y, size):
+    def draw_text(self, text, x):
         # Функция обработки текста
-        font = pygame.font.Font(None, size)
-        text_surface = font.render(text, True, (0, 0, 0))
-        text_rect = text_surface.get_rect(center=(x, y))
+        font = pygame.font.Font(None, 50)
+        text_surface = font.render(text, True, (0, 20, 15))
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x, 20)
         self.screen.blit(text_surface, text_rect)
 
     def input_info(self):
         # Отображение статистической и игровой информации
-        self.bg_inform.draw(self.screen)
-        self.draw_text(str(f'Количество емкостей воды: {self.setting.num_water}'
-                           f'/{self.setting.op_water}'), self.setting.text_k * 1.5,
-                       self.setting.text_size_score * 1.5, self.setting.text_size_score)
-        self.draw_text(str(f'Очки: {self.setting.scores}'), self.setting.text_k,
-                       self.setting.text_size_score * 1.5, self.setting.text_size_score)
-        self.draw_text(str(f'Жизни: {self.setting.lives}/{self.setting.max_lives}'),
-                       self.setting.text_k * 2, self.setting.text_size_score * 1.5,
-                       self.setting.text_size_score)
+        self.draw_text(str(f'Очки: {self.setting.scores}'), 600)
+        self.draw_text(str(f'Жизни: {self.setting.lives}'), 800)
 
     def control_event(self):
         # Задание таймера, контроль завершения игры
         for event in pygame.event.get():
             if event.type == pygame.USEREVENT:
                 self.timer_games += 1
-            elif event.type == pygame.KEYDOWN:
-                self.chek_keydown_events(event)
-            elif event.type == pygame.KEYUP:
-                self.chek_keyup_events(event)
             elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        if self.keys_pause:
-            self.pause()
 
     def run_game(self):
         # Основной цикл игры
         self.flight_clouds()
         self.in_helicopter()
-        self.info_bg()
 
         while True:
             self.clock.tick(self.setting.FPS)
             self.screen.blit(self.bg, (0, 0))
+            self.keys_position()
             self.rand_tree()
             self.rand_lake()
             self.create_hospital()
@@ -366,14 +239,9 @@ class SaveTheForest:
             self.fire_kill_tree()
             self.move_helicopter()
             self.exting_tree()
-            self.set_water()
-            self.upgrade_water()
-            self.upgrade_live()
-            self.live_down()
             self.light_cloud_display()
             self.input_info()
             self.control_event()
-            self.game_over()
             pygame.display.update()
 
 
