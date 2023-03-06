@@ -35,6 +35,11 @@ class SaveTheForest:
         self.icon.set_colorkey((255, 255, 255))
         pygame.display.set_icon(self.icon)
 
+        self.fire_sound = pygame.mixer.Sound('sounds/fire.mp3')
+        self.fire_del_sound = pygame.mixer.Sound('sounds/fire_del.mp3')
+        self.water_sound = pygame.mixer.Sound('sounds/water.mp3')
+        self.die_tree_sound = pygame.mixer.Sound('sounds/die_tree.mp3')
+
         # Создание групп объектов
         self.clouds_left = pygame.sprite.Group()
         self.clouds_right = pygame.sprite.Group()
@@ -57,6 +62,17 @@ class SaveTheForest:
         self.keys_pos_space = False
         self.keys_pause = False
         self.keys_in = False
+
+    def helicopter_music(self):
+        pygame.mixer.music.load('sounds/helicopter.mp3')
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0.1)
+
+    def background_music(self):
+        pygame.mixer.music.load("sounds/fon_music.mp3")
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0.1)
+
 
     def chek_keydown_events(self, event):
         # Функция обработки нажатия клавиш
@@ -100,23 +116,27 @@ class SaveTheForest:
                 elif event.type == pygame.KEYUP:
                     self.chek_keyup_events(event)
                 elif event.type == pygame.QUIT:
-                    self.exit()
+                    self.exit_game()
             self.draw_text('Paused!', self.setting.width_screen // 2,
                            self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
             self.buttons(self.setting.height_screen // 2, self.in_pause, 'continue')
-            self.buttons(self.setting.height_screen // 1.5, self.exit, 'exit')
+            self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'exit')
             pygame.display.update()
 
     def in_pause(self):
         self.paused = False
 
-    def exit(self):
+    def exit_game(self):
         pygame.quit()
         sys.exit()
 
-    def new_game(self):
+    def rest_new_game(self):
         self.stopped = False
         SaveTheForest().run_game()
+
+    def new_game(self):
+        self.create = False
+        self.run_game()
 
     def buttons(self, height, func, msg):
         button = Button(self.setting.width_screen // 2 - self.setting.width_buttom // 2,
@@ -134,11 +154,11 @@ class SaveTheForest:
                     elif event.type == pygame.KEYUP:
                         self.chek_keyup_events(event)
                     elif event.type == pygame.QUIT:
-                        self.exit()
+                        self.exit_game()
                 self.draw_text('Game over!', self.setting.width_screen // 2,
                                self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
-                self.buttons(self.setting.height_screen // 2, self.new_game, 'new game')
-                self.buttons(self.setting.height_screen // 1.5, self.exit, 'exit')
+                self.buttons(self.setting.height_screen // 2, self.rest_new_game, 'new game')
+                self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'exit')
                 pygame.display.update()
 
     def rand_tree(self):
@@ -168,6 +188,7 @@ class SaveTheForest:
                     counter += 1
                     break
             if counter == 0:
+                self.fire_sound.play()
                 self.fires.add(fire)
         self.fires.draw(self.screen)
 
@@ -178,6 +199,7 @@ class SaveTheForest:
             fire = list(self.fires)[0]
             for tree in self.trees:
                 if fire.rect.colliderect(tree.rect):
+                    self.die_tree_sound.play()
                     tree.kill()
                     fire.kill()
                     self.setting.scores -= self.setting.score_down
@@ -268,6 +290,7 @@ class SaveTheForest:
             for fire in self.fires:
                 if hel.rect.colliderect(fire.rect) and self.keys_pos_space\
                         and self.setting.num_water > 0:
+                    self.fire_del_sound.play()
                     self.setting.num_water -= 1
                     fire.kill()
                     self.setting.scores += self.setting.score_up
@@ -278,6 +301,7 @@ class SaveTheForest:
             for lake in self.lakes:
                 if hel.rect.colliderect(lake.rect) and self.keys_pos_space and \
                         self.setting.num_water < self.setting.op_water:
+                    self.water_sound.play()
                     self.setting.num_water += 1
 
     def upgrade_water(self):
@@ -352,9 +376,20 @@ class SaveTheForest:
 
     def run_game(self):
         # Основной цикл игры
+        while self.create:
+            self.control_event()
+            self.background_music()
+            self.draw_text('Save The Forest', self.setting.width_screen // 2,
+                           self.setting.height_screen // 3, self.setting.text_size_score * 5, 'font.ttf')
+            self.buttons(self.setting.height_screen // 2, self.new_game, 'Play')
+            self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'Exit')
+            pygame.display.update()
+
+
         self.flight_clouds()
         self.in_helicopter()
         self.info_bg()
+        self.helicopter_music()
 
         while True:
             self.clock.tick(self.setting.FPS)

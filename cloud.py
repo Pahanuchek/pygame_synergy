@@ -1,4 +1,5 @@
 import pygame
+
 from settings import Settings
 from utils import gen_num
 
