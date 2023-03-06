@@ -159,7 +159,7 @@ class SaveTheForest:
                         self.exit_game()
                 if music:
                     self.game_over_sound.play()
-                    music = False
+                    # music = False
                 self.draw_text('Game over!', self.setting.width_screen // 2,
                                self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
                 self.buttons(self.setting.height_screen // 2, self.rest_new_game, 'new game')
@@ -256,8 +256,7 @@ class SaveTheForest:
         #  Создание молний
         if self.timer_games % gen_num(100, 150) == 0:
             cloud = list(group_1)[gen_num(0, 2)]
-            light = Cloud(cloud.rect.x + self.setting.width_cloud / 2,
-                          cloud.rect.y + self.setting.height_cloud / 2, 'img/lighter.png', cloud.speed)
+            light = Cloud(*cloud.rect.center, 'img/lighter.png', cloud.speed)
             self.light_sound.play()
             group_2.add(light)
         elif len(group_2) != 0 and self.timer_games % 40 == 0:
@@ -294,7 +293,7 @@ class SaveTheForest:
         # Тушение горящего дерева, начисление очков
         for hel in self.helicopter:
             for fire in self.fires:
-                if hel.rect.colliderect(fire.rect) and self.keys_pos_space\
+                if fire.rect.collidepoint(hel.rect.center) and self.keys_pos_space\
                         and self.setting.num_water > 0:
                     self.fire_del_sound.play()
                     self.setting.num_water -= 1
@@ -305,7 +304,7 @@ class SaveTheForest:
         # Набор воды
         for hel in self.helicopter:
             for lake in self.lakes:
-                if hel.rect.colliderect(lake.rect) and self.keys_pos_space and \
+                if lake.rect.collidepoint(hel.rect.center) and self.keys_pos_space and \
                         self.setting.num_water < self.setting.op_water:
                     self.water_sound.play()
                     self.setting.num_water += 1
@@ -314,7 +313,7 @@ class SaveTheForest:
         # Увеличение емкостей воды
         for hel in self.helicopter:
             for shop in self.shop_waters:
-                if hel.rect.colliderect(shop.rect) and self.keys_pos_space and \
+                if shop.rect.collidepoint(hel.rect.center) and self.keys_pos_space and \
                         self.setting.op_water < self.setting.max_water and\
                         self.setting.scores > self.setting.upgrade_water:
                     self.upgrade_sound.play()
@@ -325,7 +324,7 @@ class SaveTheForest:
         # Увеличение жизней
         for hel in self.helicopter:
             for hos in self.hospit:
-                if hel.rect.colliderect(hos.rect) and self.keys_pos_space and \
+                if hos.rect.collidepoint(hel.rect.center) and self.keys_pos_space and \
                         self.setting.lives < self.setting.max_lives and\
                         self.setting.scores > self.setting.upgrade_lives:
                     self.rec_liv_sound.play()

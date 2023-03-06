@@ -17,6 +17,7 @@ class Button():
         self.button_surface = pygame.Surface((self.width, self.height))
         self.button_rect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.button_surf = font.render(button_text, True, (20, 20, 20))
+        self.sound_mouse = pygame.mixer.Sound('sounds/mouse.mp3')
 
     def process(self, disp, func):
         mouse_pos = pygame.mouse.get_pos()
@@ -25,6 +26,8 @@ class Button():
         if self.button_rect.collidepoint(mouse_pos):
             self.button_surface.fill(self.fill_color['hover'])
             if click[0] == 1:
+                self.sound_mouse.play()
+                pygame.time.delay(20)
                 self.button_surface.fill(self.fill_color['pressed'])
                 func()
 
