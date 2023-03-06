@@ -5,7 +5,7 @@ from utils import gen_num
 
 
 class Cloud(pygame.sprite.Sprite):
-    # Класс облаков
+    # Класс облаков и молний
     def __init__(self, x, y, obj, speed):
         pygame.sprite.Sprite.__init__(self)
         self.setting = Settings()
@@ -16,7 +16,7 @@ class Cloud(pygame.sprite.Sprite):
         self.speed = speed
 
     def update(self, *args):
-        # Передвижение облаков
+        # Передвижение облаков и молний
         if args[1] == 0:
             if self.rect.x < args[0]:
                 self.rect.x += self.speed
@@ -24,7 +24,6 @@ class Cloud(pygame.sprite.Sprite):
                 self.rect.x = - self.setting.width_cloud
                 self.rect.y = gen_num((self.setting.height_cloud // 2),
                                       (self.setting.height_screen - self.setting.height_cloud))
-
         if args[1] == 1:
             if self.rect.x > args[0] - self.setting.width_cloud:
                 self.rect.x -= self.speed

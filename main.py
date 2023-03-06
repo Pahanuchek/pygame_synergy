@@ -246,7 +246,7 @@ class SaveTheForest:
 
     def flight_clouds(self):
         # Создание двух групп облаков
-        for _ in range(3):
+        for _ in range(5):
             self.clouds_left.add(Cloud(*generate(), 'img/cloud.png', gen_num(1, 4)))
             self.clouds_right.add(Cloud(*generate(), 'img/cloud.png', gen_num(1, 4)))
 
@@ -272,7 +272,7 @@ class SaveTheForest:
         self.clouds_right.draw(self.screen)
         self.clouds_right.update(-self.setting.width_cloud, 1)
         self.lighter_right.draw(self.screen)
-        self.lighter_right.update(self.setting.width_cloud, 1)
+        self.lighter_right.update(-self.setting.width_cloud, 1)
         self.light_strike(self.clouds_right, self.lighter_right)
 
     def in_helicopter(self):
