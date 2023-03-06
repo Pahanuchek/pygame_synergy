@@ -28,4 +28,4 @@ class Settings:
         self.scores = 0
         self.score_up = 500
         self.score_down = 30
-        self.lives = 10
+        self.lives = 100

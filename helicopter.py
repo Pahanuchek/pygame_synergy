@@ -4,6 +4,7 @@ from settings import Settings
 
 
 class Helicopter(pygame.sprite.Sprite):
+    # Класс вертолета
     def __init__(self, obj, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.setting = Settings()
@@ -13,6 +14,7 @@ class Helicopter(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x, y))
 
     def update(self, *args):
+        # Передвижение вертолета
         if args[0]:
             self.rect.x += 3
             if self.rect.x > self.setting.width_screen - 60:

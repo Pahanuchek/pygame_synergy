@@ -2,6 +2,7 @@ import pygame
 
 
 class Button():
+    # Класс кнопок
     def __init__(self, x, y, width, height, button_text, one_press=False):
         self.x = x
         self.y = y
@@ -21,6 +22,7 @@ class Button():
         self.sound_mouse = pygame.mixer.Sound('sounds/mouse.mp3')
 
     def process(self, disp, func):
+        # Отклик на нажатие на кнопку правой клавишей мыши
         mouse_pos = pygame.mouse.get_pos()
         self.button_surface.fill(self.fill_color['normal'])
         if self.button_rect.collidepoint(mouse_pos):
