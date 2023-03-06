@@ -39,6 +39,12 @@ class SaveTheForest:
         self.fire_del_sound = pygame.mixer.Sound('sounds/fire_del.mp3')
         self.water_sound = pygame.mixer.Sound('sounds/water.mp3')
         self.die_tree_sound = pygame.mixer.Sound('sounds/die_tree.mp3')
+        self.upgrade_sound = pygame.mixer.Sound('sounds/upgrade_music.mp3')
+        self.rec_liv_sound = pygame.mixer.Sound('sounds/lives.mp3')
+        self.light_sound = pygame.mixer.Sound('sounds/light.mp3')
+        self.down_live_sound = pygame.mixer.Sound('sounds/down_live.mp3')
+        self.game_over_sound = pygame.mixer.Sound('sounds/game_over.mp3')
+        self.start_game_sound = pygame.mixer.Sound('sounds/start_game.mp3')
 
         # Создание групп объектов
         self.clouds_left = pygame.sprite.Group()
@@ -66,13 +72,7 @@ class SaveTheForest:
     def helicopter_music(self):
         pygame.mixer.music.load('sounds/helicopter.mp3')
         pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(0.1)
-
-    def background_music(self):
-        pygame.mixer.music.load("sounds/fon_music.mp3")
-        pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(0.1)
-
+        pygame.mixer.music.set_volume(0.3)
 
     def chek_keydown_events(self, event):
         # Функция обработки нажатия клавиш
@@ -136,6 +136,7 @@ class SaveTheForest:
 
     def new_game(self):
         self.create = False
+        self.start_game_sound.stop()
         self.run_game()
 
     def buttons(self, height, func, msg):
@@ -147,6 +148,7 @@ class SaveTheForest:
     def game_overs(self):
         if self.setting.lives <= 0:
             stopped = True
+            music = True
             while stopped:
                 for event in pygame.event.get():
                     if event.type == pygame.KEYDOWN:
@@ -155,6 +157,9 @@ class SaveTheForest:
                         self.chek_keyup_events(event)
                     elif event.type == pygame.QUIT:
                         self.exit_game()
+                if music:
+                    self.game_over_sound.play()
+                    music = False
                 self.draw_text('Game over!', self.setting.width_screen // 2,
                                self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
                 self.buttons(self.setting.height_screen // 2, self.rest_new_game, 'new game')
@@ -253,6 +258,7 @@ class SaveTheForest:
             cloud = list(group_1)[gen_num(0, 2)]
             light = Cloud(cloud.rect.x + self.setting.width_cloud / 2,
                           cloud.rect.y + self.setting.height_cloud / 2, 'img/lighter.png', cloud.speed)
+            self.light_sound.play()
             group_2.add(light)
         elif len(group_2) != 0 and self.timer_games % 40 == 0:
             for row in group_2:
@@ -311,6 +317,7 @@ class SaveTheForest:
                 if hel.rect.colliderect(shop.rect) and self.keys_pos_space and \
                         self.setting.op_water < self.setting.max_water and\
                         self.setting.scores > self.setting.upgrade_water:
+                    self.upgrade_sound.play()
                     self.setting.op_water += 1
                     self.setting.scores -= self.setting.upgrade_water
 
@@ -321,6 +328,7 @@ class SaveTheForest:
                 if hel.rect.colliderect(hos.rect) and self.keys_pos_space and \
                         self.setting.lives < self.setting.max_lives and\
                         self.setting.scores > self.setting.upgrade_lives:
+                    self.rec_liv_sound.play()
                     self.setting.lives = 100
                     self.setting.scores -= self.setting.upgrade_lives
 
@@ -329,9 +337,11 @@ class SaveTheForest:
         for hel in self.helicopter:
             for light in self.lighter_left:
                 if hel.rect.colliderect(light.rect):
+                    self.down_live_sound.play()
                     self.setting.lives -= 1
             for right in self.lighter_right:
                 if hel.rect.colliderect(right.rect):
+                    self.down_live_sound.play()
                     self.setting.lives -= 1
 
     def info_bg(self):
@@ -378,7 +388,7 @@ class SaveTheForest:
         # Основной цикл игры
         while self.create:
             self.control_event()
-            self.background_music()
+            self.start_game_sound.play()
             self.draw_text('Save The Forest', self.setting.width_screen // 2,
                            self.setting.height_screen // 3, self.setting.text_size_score * 5, 'font.ttf')
             self.buttons(self.setting.height_screen // 2, self.new_game, 'Play')
