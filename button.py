@@ -2,15 +2,16 @@ import pygame
 
 
 class Button():
-    def __init__(self, x, y, width, height, button_text):
+    def __init__(self, x, y, width, height, button_text, one_press=False):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
+        self.one_press = one_press
+        self.already_pressed = False
         self.fill_color = {
             'normal': '#ffffff',
-            'hover': '#666666',
-            'pressed': '#333333'
+            'hover': '#666666'
         }
         font = pygame.font.Font('font.ttf', 30)
 
@@ -21,14 +22,11 @@ class Button():
 
     def process(self, disp, func):
         mouse_pos = pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed()
         self.button_surface.fill(self.fill_color['normal'])
         if self.button_rect.collidepoint(mouse_pos):
             self.button_surface.fill(self.fill_color['hover'])
-            if click[0] == 1:
+            if self.one_press:
                 self.sound_mouse.play()
-                pygame.time.delay(20)
-                self.button_surface.fill(self.fill_color['pressed'])
                 func()
 
         self.button_surface.blit(self.button_surf, [

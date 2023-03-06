@@ -44,7 +44,6 @@ class SaveTheForest:
         self.light_sound = pygame.mixer.Sound('sounds/light.mp3')
         self.down_live_sound = pygame.mixer.Sound('sounds/down_live.mp3')
         self.game_over_sound = pygame.mixer.Sound('sounds/game_over.mp3')
-        self.start_game_sound = pygame.mixer.Sound('sounds/start_game.mp3')
 
         # Создание групп объектов
         self.clouds_left = pygame.sprite.Group()
@@ -67,12 +66,12 @@ class SaveTheForest:
         self.keys_pos_up = False
         self.keys_pos_space = False
         self.keys_pause = False
-        self.keys_in = False
+        self.pos_mouse = False
 
     def helicopter_music(self):
         pygame.mixer.music.load('sounds/helicopter.mp3')
         pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.set_volume(0.7)
 
     def chek_keydown_events(self, event):
         # Функция обработки нажатия клавиш
@@ -88,8 +87,6 @@ class SaveTheForest:
             self.keys_pos_space = True
         elif event.key == pygame.K_ESCAPE:
             self.keys_pause = True
-        elif event.key == pygame.K_RETURN:
-            self.keys_in = True
 
     def chek_keyup_events(self, event):
         if event.key == pygame.K_RIGHT:
@@ -104,24 +101,31 @@ class SaveTheForest:
             self.keys_pos_space = False
         elif event.key == pygame.K_ESCAPE:
             self.keys_pause = False
-        elif event.key == pygame.K_RETURN:
-            self.keys_in = False
 
     def pause(self):
-        self.paused = True
-        while self.paused:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    self.chek_keydown_events(event)
-                elif event.type == pygame.KEYUP:
-                    self.chek_keyup_events(event)
-                elif event.type == pygame.QUIT:
-                    self.exit_game()
-            self.draw_text('Paused!', self.setting.width_screen // 2,
-                           self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
-            self.buttons(self.setting.height_screen // 2, self.in_pause, 'continue')
-            self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'exit')
-            pygame.display.update()
+        if self.keys_pause:
+            self.paused = True
+            while self.paused:
+                self.control_event()
+                self.draw_text('Paused!', self.setting.width_screen // 2,
+                               self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
+                self.buttons(self.setting.height_screen // 2, self.in_pause, 'continue', self.pos_mouse)
+                self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'exit', self.pos_mouse)
+                pygame.display.update()
+
+    def game_overs(self):
+        if self.setting.lives <= 0:
+            stopped = True
+            music = True
+            while stopped:
+                self.control_event()
+                if music:
+                    self.game_over_sound.play()
+                self.draw_text('Game over!', self.setting.width_screen // 2,
+                               self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
+                self.buttons(self.setting.height_screen // 2, self.rest_new_game, 'new game', self.pos_mouse)
+                self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'exit', self.pos_mouse)
+                pygame.display.update()
 
     def in_pause(self):
         self.paused = False
@@ -136,35 +140,13 @@ class SaveTheForest:
 
     def new_game(self):
         self.create = False
-        self.start_game_sound.stop()
         self.run_game()
 
-    def buttons(self, height, func, msg):
+    def buttons(self, height, func, msg, flag):
         button = Button(self.setting.width_screen // 2 - self.setting.width_buttom // 2,
                         height, self.setting.width_buttom,
-                        self.setting.height_buttom, msg)
+                        self.setting.height_buttom, msg, flag)
         button.process(self.screen, func)
-
-    def game_overs(self):
-        if self.setting.lives <= 0:
-            stopped = True
-            music = True
-            while stopped:
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        self.chek_keydown_events(event)
-                    elif event.type == pygame.KEYUP:
-                        self.chek_keyup_events(event)
-                    elif event.type == pygame.QUIT:
-                        self.exit_game()
-                if music:
-                    self.game_over_sound.play()
-                    # music = False
-                self.draw_text('Game over!', self.setting.width_screen // 2,
-                               self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
-                self.buttons(self.setting.height_screen // 2, self.rest_new_game, 'new game')
-                self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'exit')
-                pygame.display.update()
 
     def rand_tree(self):
         # Создание рандомного расположеных деревьев
@@ -308,6 +290,7 @@ class SaveTheForest:
                         self.setting.num_water < self.setting.op_water:
                     self.water_sound.play()
                     self.setting.num_water += 1
+                    pygame.time.delay(50)
 
     def upgrade_water(self):
         # Увеличение емкостей воды
@@ -318,6 +301,7 @@ class SaveTheForest:
                         self.setting.scores > self.setting.upgrade_water:
                     self.upgrade_sound.play()
                     self.setting.op_water += 1
+                    pygame.time.delay(50)
                     self.setting.scores -= self.setting.upgrade_water
 
     def upgrade_live(self):
@@ -329,6 +313,7 @@ class SaveTheForest:
                         self.setting.scores > self.setting.upgrade_lives:
                     self.rec_liv_sound.play()
                     self.setting.lives = 100
+                    pygame.time.delay(50)
                     self.setting.scores -= self.setting.upgrade_lives
 
     def live_down(self):
@@ -377,21 +362,26 @@ class SaveTheForest:
                 self.chek_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self.chek_keyup_events(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button:
+                    self.pos_mouse = True
+                    print('1')
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button:
+                    self.pos_mouse = False
+                    print('2')
             elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        if self.keys_pause:
-            self.pause()
 
     def run_game(self):
         # Основной цикл игры
         while self.create:
             self.control_event()
-            self.start_game_sound.play()
             self.draw_text('Save The Forest', self.setting.width_screen // 2,
                            self.setting.height_screen // 3, self.setting.text_size_score * 5, 'font.ttf')
-            self.buttons(self.setting.height_screen // 2, self.new_game, 'Play')
-            self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'Exit')
+            self.buttons(self.setting.height_screen // 2, self.new_game, 'Play', self.pos_mouse)
+            self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'Exit', self.pos_mouse)
             pygame.display.update()
 
 
@@ -419,6 +409,7 @@ class SaveTheForest:
             self.input_info()
             self.control_event()
             self.game_overs()
+            self.pause()
             pygame.display.update()
 
 
