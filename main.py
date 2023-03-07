@@ -1,4 +1,3 @@
-import json
 import shelve
 import sys
 import pygame
@@ -61,8 +60,13 @@ class SaveTheForest:
         self.helicopter = pygame.sprite.Group()
         self.bg_inform = pygame.sprite.Group()
 
+        # Стартовые условия
         self.create = True
         self.save_s = True
+        self.loading = True
+        self.start = True
+        self.stopped = True
+        self.paused = True
 
         # Задание начального значения клавиш
         self.keys_pos_right = False
@@ -124,8 +128,17 @@ class SaveTheForest:
                            self.setting.height_screen // 3, self.setting.text_size_score * 5, 'font.ttf')
             self.buttons(self.setting.height_screen // 2, self.new_game, 'Play', self.pos_mouse)
             self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'Exit', self.pos_mouse)
-            self.buttons(self.setting.height_screen // 1.71, self.load, 'Load', self.pos_mouse)
+            self.buttons(self.setting.height_screen // 1.71, self.load, 'Load game', self.pos_mouse)
             pygame.display.update()
+
+    def draw_obj(self):
+        # Вывод нециклирующихся объектов
+        if self.start == True:
+            self.flight_clouds()
+            self.in_helicopter()
+            self.info_bg()
+            self.helicopter_music()
+            self.start = False
 
     def new_game(self):
         # Запуск первого цикла игры
@@ -135,21 +148,21 @@ class SaveTheForest:
     def pause(self):
         # Обработка событий при паузе
         if self.keys_pause:
-            self.paused = True
             while self.paused:
                 self.control_event()
                 self.draw_text('Paused!', self.setting.width_screen // 2,
                                self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
-                self.buttons(self.setting.height_screen // 2, self.in_pause, 'continue', self.pos_mouse)
-                self.buttons(self.setting.height_screen // 1.71, self.saves, 'save game', self.pos_mouse)
-                self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'exit', self.pos_mouse)
+                self.buttons(self.setting.height_screen // 2, self.in_pause, 'Continue', self.pos_mouse)
+                self.buttons(self.setting.height_screen // 1.71, self.saves, 'Save game', self.pos_mouse)
+                self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'Exit', self.pos_mouse)
                 pygame.display.update()
 
     def saves(self):
+        # Сохранение игры
         if self.save_s == True:
-            self.s_save_lst =  [self.helicopter, self.clouds_left, self.clouds_right, self.lighter_left,
-                                self.lighter_right, self.trees, self.lakes, self.hospit, self.shop_waters, self.fires]
-            self.a_save_num =  [self.setting.scores, self.setting.lives, self.setting.num_water, self.setting.op_water]
+            self.s_save_lst = [self.helicopter, self.clouds_left, self.clouds_right, self.lighter_left,
+                               self.lighter_right, self.trees, self.lakes, self.hospit, self.shop_waters, self.fires]
+            self.a_save_num = [self.setting.scores, self.setting.lives, self.setting.num_water, self.setting.op_water]
             self.data = [[] for i in range(len(self.s_save_lst))]
             for i in range(len(self.data)):
                 for obj in self.s_save_lst[i]:
@@ -163,9 +176,52 @@ class SaveTheForest:
             self.save_s = False
 
     def load(self):
-        with shelve.open('level') as states:
-            state = states.get('a')
-            print(state)
+        # Загрузка игры
+        if self.loading == True:
+            with shelve.open('level') as lvl:
+                state = lvl.get('a')
+                self.setting.scores = state[-1][0]
+                self.setting.lives = state[-1][1]
+                self.setting.num_water = state[-1][2]
+                self.setting.op_water = state[-1][3]
+                del state[-1]
+                self.group_load(state[0], Helicopter, 'img/helicopter.png', self.helicopter)
+                self.group_load(state[1], Cloud, 'img/cloud.png', self.clouds_left, gen_num(1,4))
+                self.group_load(state[2], Cloud, 'img/cloud.png', self.clouds_right, gen_num(1,4))
+                self.group_load(state[3], Cloud, 'img/cloud.png', self.lighter_left, gen_num(1,4))
+                self.group_load(state[4], Cloud, 'img/cloud.png', self.lighter_right, gen_num(1,4))
+                self.group_load(state[5], StaticObject, 'img/tree.png', self.trees,
+                                self.setting.width_tree_river, self.setting.height_tree_river)
+                self.group_load(state[6], StaticObject, 'img/lake.png', self.lakes,
+                                self.setting.width_tree_river, self.setting.height_tree_river)
+                self.group_load(state[7], StaticObject, 'img/hospital.png', self.hospit,
+                                self.setting.width_hospital_shop, self.setting.height_hospital_shop)
+                self.group_load(state[8], StaticObject, 'img/shop.png', self.shop_waters,
+                                self.setting.width_hospital_shop, self.setting.height_hospital_shop)
+                self.group_load(state[9], StaticObject, 'img/fire.png',
+                                self.fires, self.setting.width_tree_river, self.setting.height_tree_river)
+            self.loading = False
+            self.start = False
+            self.create = False
+            self.run_game()
+
+    def group_load(self, lst, cl, img, grup, *args):
+        # Формирование груп при загрузке игры
+        if len(lst) != 0 and cl == Helicopter:
+            for i in range(len(lst)):
+                object = cl(img, 0, 0)
+                object.rect = lst[i]
+                grup.add(object)
+        elif len(lst) != 0 and cl == Cloud:
+            for i in range(len(lst)):
+                object = cl(0, 0, img, args[0])
+                object.rect = lst[i]
+                grup.add(object)
+        elif len(lst) != 0 and cl == StaticObject:
+            for i in range(len(lst)):
+                object = cl(img, 0, 0, args[0], args[1])
+                object.rect = lst[i]
+                grup.add(object)
 
     def in_pause(self):
         # Выход из паузы
@@ -174,7 +230,6 @@ class SaveTheForest:
     def game_overs(self):
         # Обработка событий при проигрыше
         if self.setting.lives <= 0:
-            self.stopped = True
             while self.stopped:
                 self.control_event()
                 self.draw_text('Game over!', self.setting.width_screen // 2,
@@ -420,10 +475,11 @@ class SaveTheForest:
     def run_game(self):
         # Основной функция игры
         self.first_game()
-        self.flight_clouds()
-        self.in_helicopter()
-        self.info_bg()
-        self.helicopter_music()
+        self.draw_obj()
+        # self.flight_clouds()
+        # self.in_helicopter()
+        # self.info_bg()
+        # self.helicopter_music()
 
         while True:
             # Основной цикл игры
