@@ -1,8 +1,11 @@
+import json
+import shelve
 import sys
 import pygame
 
 from button import Button
 from cloud import Cloud
+
 from static import StaticObject
 from settings import Settings
 from utils import generate, gen_num, entrance
@@ -57,7 +60,9 @@ class SaveTheForest:
         self.shop_waters = pygame.sprite.Group()
         self.helicopter = pygame.sprite.Group()
         self.bg_inform = pygame.sprite.Group()
+
         self.create = True
+        self.save_s = True
 
         # Задание начального значения клавиш
         self.keys_pos_right = False
@@ -119,6 +124,7 @@ class SaveTheForest:
                            self.setting.height_screen // 3, self.setting.text_size_score * 5, 'font.ttf')
             self.buttons(self.setting.height_screen // 2, self.new_game, 'Play', self.pos_mouse)
             self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'Exit', self.pos_mouse)
+            self.buttons(self.setting.height_screen // 1.71, self.load, 'Load', self.pos_mouse)
             pygame.display.update()
 
     def new_game(self):
@@ -135,8 +141,31 @@ class SaveTheForest:
                 self.draw_text('Paused!', self.setting.width_screen // 2,
                                self.setting.height_screen // 3, self.setting.text_size_score * 3, 'font.ttf')
                 self.buttons(self.setting.height_screen // 2, self.in_pause, 'continue', self.pos_mouse)
+                self.buttons(self.setting.height_screen // 1.71, self.saves, 'save game', self.pos_mouse)
                 self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'exit', self.pos_mouse)
                 pygame.display.update()
+
+    def saves(self):
+        if self.save_s == True:
+            self.s_save_lst =  [self.helicopter, self.clouds_left, self.clouds_right, self.lighter_left,
+                                self.lighter_right, self.trees, self.lakes, self.hospit, self.shop_waters, self.fires]
+            self.a_save_num =  [self.setting.scores, self.setting.lives, self.setting.num_water, self.setting.op_water]
+            self.data = [[] for i in range(len(self.s_save_lst))]
+            for i in range(len(self.data)):
+                for obj in self.s_save_lst[i]:
+                    self.data[i].append(obj.rect)
+            print(self.helicopter)
+            self.data.append(self.a_save_num)
+            print('w', self.data)
+            with shelve.open('level') as lvl:
+                lvl['a'] = self.data
+            lvl.close()
+            self.save_s = False
+
+    def load(self):
+        with shelve.open('level') as states:
+            state = states.get('a')
+            print(state)
 
     def in_pause(self):
         # Выход из паузы
