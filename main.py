@@ -118,6 +118,7 @@ class SaveTheForest:
             self.draw_text('Save The Forest', self.setting.width_screen // 2,
                            self.setting.height_screen // 3, self.setting.text_size_score * 5, 'font.ttf')
             self.buttons(self.setting.height_screen // 2, self.new_game, 'Play', self.pos_mouse)
+            self.buttons(self.setting.height_screen // 1.71, self.exit_game, 'load game', self.pos_mouse)
             self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'Exit', self.pos_mouse)
             pygame.display.update()
 
@@ -246,7 +247,7 @@ class SaveTheForest:
 
     def flight_clouds(self):
         # Создание двух групп облаков
-        for _ in range(5):
+        for _ in range(self.setting.quantity_clouds):
             self.clouds_left.add(Cloud(*generate(), 'img/cloud.png', gen_num(1, 4)))
             self.clouds_right.add(Cloud(*generate(), 'img/cloud.png', gen_num(1, 4)))
 
@@ -345,7 +346,7 @@ class SaveTheForest:
                     self.setting.lives -= 1
 
     def info_bg(self):
-        # Инициализация вертолета
+        # Рамка информации
         bg_info = StaticObject('img/bg_info.png', self.setting.bg_k * 20, self.setting.bg_k,
                                self.setting.bg_k * 20, self.setting.bg_k)
         self.bg_inform.add(bg_info)

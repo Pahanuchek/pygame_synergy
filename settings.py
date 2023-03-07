@@ -25,7 +25,8 @@ class Settings:
                                     self.height_screen - self.height_cloud) for _ in range(5)]
         self.quantity_trees = 30
         self.quantity_lakes = 7
+        self.quantity_clouds = 5
         self.scores = 0
-        self.score_up = 500
+        self.score_up = 100
         self.score_down = 30
         self.lives = 100
