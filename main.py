@@ -118,7 +118,6 @@ class SaveTheForest:
             self.draw_text('Save The Forest', self.setting.width_screen // 2,
                            self.setting.height_screen // 3, self.setting.text_size_score * 5, 'font.ttf')
             self.buttons(self.setting.height_screen // 2, self.new_game, 'Play', self.pos_mouse)
-            self.buttons(self.setting.height_screen // 1.71, self.exit_game, 'load game', self.pos_mouse)
             self.buttons(self.setting.height_screen // 1.5, self.exit_game, 'Exit', self.pos_mouse)
             pygame.display.update()
 
